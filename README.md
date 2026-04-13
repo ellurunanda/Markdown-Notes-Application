@@ -295,6 +295,5 @@ All endpoints (except auth) require `Authorization: Bearer <token>`.
 
 ---
 
-## 📄 License
-
-MIT
+## 📄 Published link
+https://markdown-notes-application-frontend.onrender.com/
