@@ -11,8 +11,7 @@ import './App.css';
 export default function App() {
   const { user, loading: authLoading } = useAuth();
   const {
-    notes,
-    meta,
+    notes,  
     loading,
     activeNote,
     setActiveNote,
