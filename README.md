@@ -6,24 +6,26 @@ A full-stack Markdown notes application with real-time split-screen preview, JWT
 
 ## 🏗️ Tech Stack
 
-| Layer    | Technology                            |
-|----------|---------------------------------------|
-| Frontend | React 18, react-markdown, remark-gfm  |
-| Backend  | Node.js, Express 4                    |
-| Database | MySQL (via mysql2)                    |
-| Auth     | JWT (jsonwebtoken + bcryptjs)         |
+| Layer    | Technology                           |
+| -------- | ------------------------------------ |
+| Frontend | React 18, react-markdown, remark-gfm |
+| Backend  | Node.js, Express 4                   |
+| Database | MySQL (via mysql2)                   |
+| Auth     | JWT (jsonwebtoken + bcryptjs)        |
 
 ---
 
 ## ✨ Features
 
 ### Core
+
 - ✅ Create, read, update, delete notes
 - ✅ Markdown editor with live split-screen preview
 - ✅ Renders: headings, bold/italic, lists, code blocks, links, tables, blockquotes
 - ✅ Persistent storage in MySQL
 
 ### Bonus
+
 - ✅ **JWT Authentication** — register & login flow
 - ✅ **Debounced Auto-Save** — saves 800ms after you stop typing
 - ✅ **Version History** — every save snapshots the previous content; restore any version
@@ -150,6 +152,7 @@ node src/models/migrate.js
 ### 5. Start the development servers
 
 **Terminal 1 — Backend:**
+
 ```bash
 cd backend
 npm run dev        # nodemon hot-reload
@@ -157,6 +160,7 @@ npm run dev        # nodemon hot-reload
 ```
 
 **Terminal 2 — Frontend:**
+
 ```bash
 cd frontend
 npm start
@@ -224,7 +228,7 @@ All endpoints (except auth) require `Authorization: Bearer <token>`.
 ### Auth
 
 | Method | Endpoint             | Description      |
-|--------|----------------------|------------------|
+| ------ | -------------------- | ---------------- |
 | POST   | `/api/auth/register` | Create account   |
 | POST   | `/api/auth/login`    | Login, get JWT   |
 | GET    | `/api/auth/me`       | Get current user |
@@ -232,7 +236,7 @@ All endpoints (except auth) require `Authorization: Bearer <token>`.
 ### Notes
 
 | Method | Endpoint                               | Description            |
-|--------|----------------------------------------|------------------------|
+| ------ | -------------------------------------- | ---------------------- |
 | GET    | `/api/notes`                           | List notes (paginated) |
 | GET    | `/api/notes?search=query`              | Full-text search       |
 | GET    | `/api/notes?tag=tagname`               | Filter by tag          |
@@ -264,7 +268,7 @@ All endpoints (except auth) require `Authorization: Bearer <token>`.
 
 3. **MySQL FULLTEXT search** — Uses InnoDB FULLTEXT index with BOOLEAN MODE for prefix matching. Scales well for typical note volumes.
 
-4. **Version history on every save** — Snapshots the *previous* content before overwriting. Keeps the last 50 versions per note.
+4. **Version history on every save** — Snapshots the _previous_ content before overwriting. Keeps the last 50 versions per note.
 
 5. **CSS custom properties for theming** — No CSS-in-JS library needed. A single `data-theme` attribute on `<html>` switches the entire palette.
 
