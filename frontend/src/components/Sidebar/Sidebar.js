@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { useDebounce } from '../../hooks/useDebounce';
-import { tagsAPI } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import './Sidebar.css';
+import React, { useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { useDebounce } from "../../hooks/useDebounce";
+import { tagsAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import {
+  FileText,
+  Moon,
+  Sun,
+  LogOut,
+  Search,
+  X,
+  Plus,
+  Pin,
+  Trash2,
+  AlertTriangle,
+} from "lucide-react";
+import "./Sidebar.css";
 
 export default function Sidebar({
   notes,
@@ -18,9 +30,9 @@ export default function Sidebar({
 }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [tags, setTags] = useState([]);
-  const [activeTag, setActiveTag] = useState('');
+  const [activeTag, setActiveTag] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const debouncedSearch = useDebounce(search, 400);
@@ -30,11 +42,14 @@ export default function Sidebar({
   }, [debouncedSearch, onSearch]);
 
   useEffect(() => {
-    tagsAPI.list().then((res) => setTags(res.data.data)).catch(() => {});
+    tagsAPI
+      .list()
+      .then((res) => setTags(res.data.data))
+      .catch(() => {});
   }, [notes]);
 
   const handleTagClick = (tagName) => {
-    const next = activeTag === tagName ? '' : tagName;
+    const next = activeTag === tagName ? "" : tagName;
     setActiveTag(next);
     onTagFilter(next);
   };
@@ -51,24 +66,28 @@ export default function Sidebar({
   };
 
   const truncate = (str, len = 80) =>
-    str && str.length > len ? str.slice(0, len) + '…' : str;
+    str && str.length > len ? str.slice(0, len) + "…" : str;
 
   return (
     <aside className="sidebar">
       {/* Header */}
       <div className="sidebar-header">
         <div className="sidebar-brand">
-          <span className="sidebar-brand-icon">📝</span>
+          <span className="sidebar-brand-icon">
+            <FileText size={22} />
+          </span>
           <span className="sidebar-brand-name">MarkNotes</span>
         </div>
         <div className="sidebar-header-actions">
           <button
             className="btn btn-ghost icon-btn"
             onClick={toggleTheme}
-            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            title={
+              theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+            }
             aria-label="Toggle theme"
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
           <button
             className="btn btn-ghost icon-btn"
@@ -76,7 +95,7 @@ export default function Sidebar({
             title="Sign out"
             aria-label="Sign out"
           >
-            🚪
+            <LogOut size={18} />
           </button>
         </div>
       </div>
@@ -84,14 +103,16 @@ export default function Sidebar({
       {/* User info */}
       <div className="sidebar-user">
         <div className="sidebar-user-avatar">
-          {user?.username?.[0]?.toUpperCase() || 'U'}
+          {user?.username?.[0]?.toUpperCase() || "U"}
         </div>
         <span className="sidebar-user-name">{user?.username}</span>
       </div>
 
       {/* Search */}
       <div className="sidebar-search">
-        <span className="sidebar-search-icon">🔍</span>
+        <span className="sidebar-search-icon">
+          <Search size={16} />
+        </span>
         <input
           type="search"
           className="sidebar-search-input"
@@ -103,10 +124,10 @@ export default function Sidebar({
         {search && (
           <button
             className="sidebar-search-clear"
-            onClick={() => setSearch('')}
+            onClick={() => setSearch("")}
             aria-label="Clear search"
           >
-            ✕
+            <X size={14} />
           </button>
         )}
       </div>
@@ -117,8 +138,8 @@ export default function Sidebar({
           {tags.map((tag) => (
             <button
               key={tag.id}
-              className={`tag-chip ${activeTag === tag.name ? 'tag-chip--active' : ''}`}
-              style={{ '--tag-color': tag.color }}
+              className={`tag-chip ${activeTag === tag.name ? "tag-chip--active" : ""}`}
+              style={{ "--tag-color": tag.color }}
               onClick={() => handleTagClick(tag.name)}
             >
               {tag.name}
@@ -129,69 +150,107 @@ export default function Sidebar({
       )}
 
       {/* New Note button */}
-      <button className="btn btn-primary sidebar-new-btn" onClick={onCreateNote}>
-        <span>＋</span> New Note
+      <button
+        className="btn btn-primary sidebar-new-btn"
+        onClick={onCreateNote}
+      >
+        <Plus size={18} /> New Note
       </button>
 
       {/* Notes list */}
       <div className="sidebar-notes">
         {loading && (
           <div className="sidebar-empty">
-            <span className="spin" style={{ display: 'inline-block', width: 20, height: 20, border: '2px solid var(--color-border)', borderTopColor: 'var(--color-primary)', borderRadius: '50%' }} />
+            <span
+              className="spin"
+              style={{
+                display: "inline-block",
+                width: 20,
+                height: 20,
+                border: "2px solid var(--color-border)",
+                borderTopColor: "var(--color-primary)",
+                borderRadius: "50%",
+              }}
+            />
           </div>
         )}
 
         {!loading && notes.length === 0 && (
           <div className="sidebar-empty">
-            <p>{search ? 'No notes match your search.' : 'No notes yet. Create one!'}</p>
+            <p>
+              {search
+                ? "No notes match your search."
+                : "No notes yet. Create one!"}
+            </p>
           </div>
         )}
 
-        {!loading && notes.map((note) => (
-          <div
-            key={note.id}
-            className={`note-item ${activeNote?.id === note.id ? 'note-item--active' : ''}`}
-            onClick={() => onSelectNote(note)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && onSelectNote(note)}
-          >
-            <div className="note-item-header">
-              <span className="note-item-pin">{note.is_pinned ? '📌' : ''}</span>
-              <span className="note-item-title">{note.title || 'Untitled Note'}</span>
-              <button
-                className={`btn note-item-delete ${confirmDelete === note.id ? 'note-item-delete--confirm' : ''}`}
-                onClick={(e) => handleDelete(e, note.id)}
-                title={confirmDelete === note.id ? 'Click again to confirm' : 'Delete note'}
-                aria-label="Delete note"
-              >
-                {confirmDelete === note.id ? '⚠️' : '🗑'}
-              </button>
-            </div>
-
-            <p className="note-item-preview">
-              {truncate(note.content?.replace(/[#*`>\-_\[\]]/g, '').trim())}
-            </p>
-
-            <div className="note-item-footer">
-              <span className="note-item-date">
-                {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
-              </span>
-              {note.tags?.length > 0 && (
-                <div className="note-item-tags">
-                  {note.tags.slice(0, 2).map((t) => (
-                    <span key={t.id} className="note-item-tag" style={{ '--tag-color': t.color }}>
-                      {t.name}
-                    </span>
-                  ))}
-                  {note.tags.length > 2 && (
-                    <span className="note-item-tag">+{note.tags.length - 2}</span>
+        {!loading &&
+          notes.map((note) => (
+            <div
+              key={note.id}
+              className={`note-item ${activeNote?.id === note.id ? "note-item--active" : ""}`}
+              onClick={() => onSelectNote(note)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && onSelectNote(note)}
+            >
+              <div className="note-item-header">
+                <span className="note-item-pin">
+                  {note.is_pinned ? <Pin size={14} /> : ""}
+                </span>
+                <span className="note-item-title">
+                  {note.title || "Untitled Note"}
+                </span>
+                <button
+                  className={`btn note-item-delete ${confirmDelete === note.id ? "note-item-delete--confirm" : ""}`}
+                  onClick={(e) => handleDelete(e, note.id)}
+                  title={
+                    confirmDelete === note.id
+                      ? "Click again to confirm"
+                      : "Delete note"
+                  }
+                  aria-label="Delete note"
+                >
+                  {confirmDelete === note.id ? (
+                    <AlertTriangle size={16} />
+                  ) : (
+                    <Trash2 size={16} />
                   )}
-                </div>
-              )}
+                </button>
+              </div>
+
+              <p className="note-item-preview">
+                {truncate(note.content?.replace(/[#*`>\-_[\]]/g, "").trim())}
+              </p>
+
+              <div className="note-item-footer">
+                <span className="note-item-date">
+                  {formatDistanceToNow(new Date(note.updated_at), {
+                    addSuffix: true,
+                  })}
+                </span>
+                {note.tags?.length > 0 && (
+                  <div className="note-item-tags">
+                    {note.tags.slice(0, 2).map((t) => (
+                      <span
+                        key={t.id}
+                        className="note-item-tag"
+                        style={{ "--tag-color": t.color }}
+                      >
+                        {t.name}
+                      </span>
+                    ))}
+                    {note.tags.length > 2 && (
+                      <span className="note-item-tag">
+                        +{note.tags.length - 2}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </aside>
   );

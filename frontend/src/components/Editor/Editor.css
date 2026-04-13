@@ -22,8 +22,11 @@
 
 .editor-empty-icon {
   font-size: 3rem;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 16px;
+  color: var(--color-primary);
 }
 
 .editor-empty-content h2 {
@@ -65,7 +68,10 @@
   color: var(--color-text);
   padding: 4px 0;
 }
-.editor-title-input::placeholder { color: var(--color-text-muted); font-weight: 400; }
+.editor-title-input::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
 
 .editor-toolbar-right {
   display: flex;
@@ -83,9 +89,15 @@
   gap: 4px;
   white-space: nowrap;
 }
-.save-status--saved  { color: var(--color-success); }
-.save-status--unsaved { color: var(--color-warning); }
-.save-status--saving  { color: var(--color-text-muted); }
+.save-status--saved {
+  color: var(--color-success);
+}
+.save-status--unsaved {
+  color: var(--color-warning);
+}
+.save-status--saving {
+  color: var(--color-text-muted);
+}
 
 .save-spinner {
   display: inline-block;
@@ -111,16 +123,26 @@
   cursor: pointer;
   font-size: 0.75rem;
   color: var(--color-text-muted);
-  transition: background var(--transition), color var(--transition);
+  transition:
+    background var(--transition),
+    color var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.view-toggle-btn:hover { background: var(--color-surface-2); color: var(--color-text); }
+.view-toggle-btn:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
 .view-toggle-btn--active {
   background: var(--color-primary);
   color: #fff;
 }
 
 /* Pin button */
-.icon-btn.pinned { color: var(--color-warning); }
+.icon-btn.pinned {
+  color: var(--color-warning);
+}
 
 /* Tags bar */
 .editor-tags-bar {
@@ -137,9 +159,15 @@
   overflow: hidden;
 }
 
-.editor-panels--split .editor-panel { flex: 1; }
-.editor-panels--editor .editor-panel--write { flex: 1; }
-.editor-panels--preview .editor-panel--preview { flex: 1; }
+.editor-panels--split .editor-panel {
+  flex: 1;
+}
+.editor-panels--editor .editor-panel--write {
+  flex: 1;
+}
+.editor-panels--preview .editor-panel--preview {
+  flex: 1;
+}
 
 .editor-panel {
   display: flex;
@@ -174,7 +202,10 @@
   color: var(--color-text);
   overflow-y: auto;
 }
-.editor-textarea::placeholder { color: var(--color-text-muted); font-family: var(--font-sans); }
+.editor-textarea::placeholder {
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+}
 
 /* Divider */
 .editor-divider {
@@ -206,5 +237,7 @@
   .editor-toolbar-right {
     flex-wrap: wrap;
   }
-  .save-status { display: none; }
+  .save-status {
+    display: none;
+  }
 }

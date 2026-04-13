@@ -1,23 +1,34 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import { notesAPI } from '../../services/api';
-import { useDebounce } from '../../hooks/useDebounce';
-import VersionHistory from '../VersionHistory/VersionHistory';
-import TagEditor from '../TagEditor/TagEditor';
-import toast from 'react-hot-toast';
-import './Editor.css';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { notesAPI } from "../../services/api";
+import { useDebounce } from "../../hooks/useDebounce";
+import VersionHistory from "../VersionHistory/VersionHistory";
+import TagEditor from "../TagEditor/TagEditor";
+import toast from "react-hot-toast";
+import {
+  FileText,
+  Check,
+  Circle,
+  PenLine,
+  Columns2,
+  Eye,
+  Pin,
+  Clock,
+  Save,
+} from "lucide-react";
+import "./Editor.css";
 
 export default function Editor({ note, onUpdate }) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [tags, setTags] = useState([]);
   const [isPinned, setIsPinned] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState('saved'); // 'saved' | 'unsaved' | 'saving'
+  const [saveStatus, setSaveStatus] = useState("saved"); // 'saved' | 'unsaved' | 'saving'
   const [showVersions, setShowVersions] = useState(false);
-  const [viewMode, setViewMode] = useState('split'); // 'split' | 'editor' | 'preview'
+  const [viewMode, setViewMode] = useState("split"); // 'split' | 'editor' | 'preview'
 
   const debouncedTitle = useDebounce(title, 800);
   const debouncedContent = useDebounce(content, 800);
@@ -30,53 +41,55 @@ export default function Editor({ note, onUpdate }) {
   useEffect(() => {
     if (note) {
       isInitialLoad.current = true;
-      setTitle(note.title || '');
-      setContent(note.content || '');
+      setTitle(note.title || "");
+      setContent(note.content || "");
       setTags(note.tags?.map((t) => t.name) || []);
       setIsPinned(!!note.is_pinned);
-      setSaveStatus('saved');
+      setSaveStatus("saved");
       noteIdRef.current = note.id;
       // Allow debounce to settle before enabling auto-save
-      setTimeout(() => { isInitialLoad.current = false; }, 900);
+      setTimeout(() => {
+        isInitialLoad.current = false;
+      }, 900);
     }
-  }, [note?.id]);
+  }, [note?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const autoSave = useCallback(async () => {
+    if (!noteIdRef.current) return;
+    setSaving(true);
+    setSaveStatus("saving");
+    try {
+      const updated = await notesAPI.update(noteIdRef.current, {
+        title: title || "Untitled Note",
+        content,
+        tags,
+        is_pinned: isPinned,
+      });
+      onUpdate(updated.data.data);
+      setSaveStatus("saved");
+    } catch {
+      setSaveStatus("unsaved");
+    } finally {
+      setSaving(false);
+    }
+  }, [title, content, tags, isPinned, onUpdate]);
 
   // Debounced auto-save
   useEffect(() => {
     if (isInitialLoad.current) return;
     if (!noteIdRef.current) return;
-    setSaveStatus('unsaved');
+    setSaveStatus("unsaved");
   }, [title, content]);
 
   useEffect(() => {
     if (isInitialLoad.current) return;
     if (!noteIdRef.current) return;
     autoSave();
-  }, [debouncedTitle, debouncedContent]);
-
-  const autoSave = useCallback(async () => {
-    if (!noteIdRef.current) return;
-    setSaving(true);
-    setSaveStatus('saving');
-    try {
-      const updated = await notesAPI.update(noteIdRef.current, {
-        title: title || 'Untitled Note',
-        content,
-        tags,
-        is_pinned: isPinned,
-      });
-      onUpdate(updated.data.data);
-      setSaveStatus('saved');
-    } catch {
-      setSaveStatus('unsaved');
-    } finally {
-      setSaving(false);
-    }
-  }, [title, content, tags, isPinned, onUpdate]);
+  }, [debouncedTitle, debouncedContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleManualSave = async () => {
     await autoSave();
-    toast.success('Note saved!');
+    toast.success("Note saved!");
   };
 
   const handlePinToggle = async () => {
@@ -84,7 +97,9 @@ export default function Editor({ note, onUpdate }) {
     setIsPinned(next);
     if (!noteIdRef.current) return;
     try {
-      const updated = await notesAPI.update(noteIdRef.current, { is_pinned: next });
+      const updated = await notesAPI.update(noteIdRef.current, {
+        is_pinned: next,
+      });
       onUpdate(updated.data.data);
     } catch {
       setIsPinned(!next);
@@ -95,10 +110,12 @@ export default function Editor({ note, onUpdate }) {
     setTags(newTags);
     if (!noteIdRef.current) return;
     try {
-      const updated = await notesAPI.update(noteIdRef.current, { tags: newTags });
+      const updated = await notesAPI.update(noteIdRef.current, {
+        tags: newTags,
+      });
       onUpdate(updated.data.data);
     } catch {
-      toast.error('Failed to update tags.');
+      toast.error("Failed to update tags.");
     }
   };
 
@@ -106,7 +123,9 @@ export default function Editor({ note, onUpdate }) {
     return (
       <div className="editor-empty">
         <div className="editor-empty-content">
-          <span className="editor-empty-icon">📝</span>
+          <span className="editor-empty-icon">
+            <FileText size={48} strokeWidth={1.5} />
+          </span>
           <h2>Select a note or create a new one</h2>
           <p>Your notes will appear here with a live Markdown preview.</p>
         </div>
@@ -131,24 +150,42 @@ export default function Editor({ note, onUpdate }) {
         <div className="editor-toolbar-right">
           {/* Save status indicator */}
           <span className={`save-status save-status--${saveStatus}`}>
-            {saveStatus === 'saving' && (
-              <span className="spin save-spinner" />
+            {saveStatus === "saving" && <span className="spin save-spinner" />}
+            {saveStatus === "saved" && (
+              <>
+                <Check size={14} /> Saved
+              </>
             )}
-            {saveStatus === 'saved' && '✓ Saved'}
-            {saveStatus === 'unsaved' && '● Unsaved'}
-            {saveStatus === 'saving' && 'Saving…'}
+            {saveStatus === "unsaved" && (
+              <>
+                <Circle size={14} /> Unsaved
+              </>
+            )}
+            {saveStatus === "saving" && "Saving…"}
           </span>
 
           {/* View mode toggle */}
           <div className="view-toggle" role="group" aria-label="View mode">
             {[
-              { key: 'editor', label: '✏️', title: 'Editor only' },
-              { key: 'split', label: '⬛⬜', title: 'Split view' },
-              { key: 'preview', label: '👁', title: 'Preview only' },
+              {
+                key: "editor",
+                label: <PenLine size={16} />,
+                title: "Editor only",
+              },
+              {
+                key: "split",
+                label: <Columns2 size={16} />,
+                title: "Split view",
+              },
+              {
+                key: "preview",
+                label: <Eye size={16} />,
+                title: "Preview only",
+              },
             ].map(({ key, label, title }) => (
               <button
                 key={key}
-                className={`view-toggle-btn ${viewMode === key ? 'view-toggle-btn--active' : ''}`}
+                className={`view-toggle-btn ${viewMode === key ? "view-toggle-btn--active" : ""}`}
                 onClick={() => setViewMode(key)}
                 title={title}
                 aria-pressed={viewMode === key}
@@ -159,11 +196,11 @@ export default function Editor({ note, onUpdate }) {
           </div>
 
           <button
-            className={`btn btn-ghost icon-btn ${isPinned ? 'pinned' : ''}`}
+            className={`btn btn-ghost icon-btn ${isPinned ? "pinned" : ""}`}
             onClick={handlePinToggle}
-            title={isPinned ? 'Unpin note' : 'Pin note'}
+            title={isPinned ? "Unpin note" : "Pin note"}
           >
-            📌
+            <Pin size={18} />
           </button>
 
           <button
@@ -171,7 +208,7 @@ export default function Editor({ note, onUpdate }) {
             onClick={() => setShowVersions(true)}
             title="Version history"
           >
-            🕐
+            <Clock size={18} />
           </button>
 
           <button
@@ -179,7 +216,13 @@ export default function Editor({ note, onUpdate }) {
             onClick={handleManualSave}
             disabled={saving}
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? (
+              "Saving…"
+            ) : (
+              <>
+                <Save size={16} /> Save
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -192,7 +235,7 @@ export default function Editor({ note, onUpdate }) {
       {/* Split-screen panels */}
       <div className={`editor-panels editor-panels--${viewMode}`}>
         {/* Left: Raw Markdown editor */}
-        {(viewMode === 'editor' || viewMode === 'split') && (
+        {(viewMode === "editor" || viewMode === "split") && (
           <div className="editor-panel editor-panel--write">
             <div className="panel-label">MARKDOWN</div>
             <textarea
@@ -207,10 +250,10 @@ export default function Editor({ note, onUpdate }) {
         )}
 
         {/* Divider */}
-        {viewMode === 'split' && <div className="editor-divider" />}
+        {viewMode === "split" && <div className="editor-divider" />}
 
         {/* Right: Rendered preview */}
-        {(viewMode === 'preview' || viewMode === 'split') && (
+        {(viewMode === "preview" || viewMode === "split") && (
           <div className="editor-panel editor-panel--preview">
             <div className="panel-label">PREVIEW</div>
             <div className="markdown-preview">
@@ -222,7 +265,9 @@ export default function Editor({ note, onUpdate }) {
                   {content}
                 </ReactMarkdown>
               ) : (
-                <p className="preview-placeholder">Preview will appear here as you type…</p>
+                <p className="preview-placeholder">
+                  Preview will appear here as you type…
+                </p>
               )}
             </div>
           </div>
@@ -238,7 +283,7 @@ export default function Editor({ note, onUpdate }) {
             setTitle(restored.title);
             setContent(restored.content);
             setShowVersions(false);
-            toast.success('Version restored!');
+            toast.success("Version restored!");
           }}
           onClose={() => setShowVersions(false)}
         />
